@@ -1,4 +1,8 @@
-package de.neuwirthinformatik.Alexander.WEPSimulation;
+package de.neuwirthinformatik.Alexander.WEP;
+
+import de.neuwirthinformatik.Alexander.Util.BAC;
+import de.neuwirthinformatik.Alexander.Util.Util;
+import de.neuwirthinformatik.Alexander.Util.XOR;
 
 public class WEP 
 {
@@ -31,12 +35,24 @@ public class WEP
 	{
 		System.arraycopy(iv, 0, seed, 0, 3);
 		System.arraycopy(key, 0, seed, 3, key_size);
-		byte[] keystream = RC4.cipher(seed);
-		incIV();
+		byte[] keystream = Util.toSignedByteArray(RC4.cipher(seed,msg.length));
+		return XOR.xor(msg, keystream);
+	}
+	
+	public String decrypt(String msg)
+	{
+		return BAC.toString(decrypt(BAC.toByteArray(msg)));
+	}
+	
+	public byte[] decrypt(byte[] msg)
+	{
+		System.arraycopy(iv, 0, seed, 0, 3);
+		System.arraycopy(key, 0, seed, 3, key_size);
+		byte[] keystream = Util.toSignedByteArray(RC4.cipher(seed,msg.length));
 		return XOR.xor(msg, keystream);
 	}
 
-	private void incIV()
+	public void incIV()
 	{
 		if(iv[0] == 255)
 		{
@@ -58,5 +74,23 @@ public class WEP
 		{
 			iv[0]++;
 		}
+	}
+	
+	public void decIV()
+	{
+		for(int i = 0; i < 255;i++)
+		{
+			incIV();
+		}
+	}
+	
+	public void setIV(byte[] iv)
+	{
+		this.iv = iv;
+	}
+	
+	public byte[] getIV()
+	{
+		return iv;
 	}
 }

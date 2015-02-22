@@ -1,4 +1,4 @@
-package de.neuwirthinformatik.Alexander.WEPSimulation;
+package de.neuwirthinformatik.Alexander.Util;
 
 public class XOR
 {

@@ -1,17 +1,19 @@
 package de.neuwirthinformatik.Alexander.WEP.Simulation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import de.neuwirthinformatik.Alexander.Util.BAC;
 import de.neuwirthinformatik.Alexander.WEP.WEP;
 
-public class Router
+public class Router implements Listener
 {
+	//SSID
 	public static String ROUTER_NAME = "ROUTER1";
+	public static String GET_CONNECTED_LIST = "GET_CONNECTED_LIST";
 	private static String PASSWORD = "daspasswort";
+	//public medium
 	private ArrayList<Listener> listeners = new ArrayList<Listener>();
-	private HashMap<String,Integer> ip_table = new HashMap<String,Integer>();
+	private ArrayList<String> connected = new ArrayList<String>();
 	private WEP wep = null;
 	
 	public Router()
@@ -24,17 +26,49 @@ public class Router
 		{
 			e.printStackTrace();
 		}
+		wep.randomIV();
+		listeners.add(this);
+		connected.add(ROUTER_NAME);
 	}
 	
-	public void sendTo(byte[] msg,byte[] from, byte[] to)
+	public void listen(byte[] msg, byte[] from, byte[] to)
 	{
-		if(isConnected(wep.decryptIV(from)) && isConnected(wep.decryptIV(from)))
+		if(BAC.toString(wep.decryptIV(to)).equals(ROUTER_NAME))
 		{
-			for(Listener r : listeners)
+			disconnect(msg);
+			if(BAC.toString(wep.decryptIV(msg)).equals(GET_CONNECTED_LIST))
 			{
-				r.listen(msg.clone(),from,to);
+				String t="";
+				for(String s : connected)
+				{
+					t += s+" ";
+				}
+				//to and from swaped to answer
+				sendTo(wep.encryptIV(t),to,from);
 			}
 		}
+	}
+	
+	public void sendTo(final String msg,final byte[] from,final byte[] to)
+	{
+		sendTo(BAC.toByteArray(msg),from,to);
+	}
+	
+	public void sendTo(final byte[] msg,final byte[] from,final byte[] to)
+	{
+		new Thread(new Runnable(){
+			public void run()
+			{
+				if(isConnected(wep.decryptIV(to)) && isConnected(wep.decryptIV(from)))
+				{
+					for(Listener r : listeners)
+					{
+						r.listen(msg.clone(),from,to);
+					}
+				}
+				else if(connect(msg));
+			}
+		}).start();
 	}
 	
 	public void addListener(Listener l)
@@ -47,43 +81,61 @@ public class Router
 		listeners.remove(l);
 	}
 	//connect = verschlüsselt name+routername
-	public void connnect(Listener l,byte[] connect)
+	private boolean connect(byte[] connect)
 	{
-		if(!listeners.contains(l))
+		if(connect.length >3)
 		{
 			String msg = BAC.toString(wep.decryptIV(connect));
-			String name = msg.substring(0,msg.length()-ROUTER_NAME.length());
-			String router = msg.substring(msg.length()-ROUTER_NAME.length(),msg.length());
-			if(!isConnected(name) && router.equals(ROUTER_NAME))
+			if(msg.length()>ROUTER_NAME.length())
 			{
-				listeners.add(listeners.size(), l);
-				ip_table.put(name, listeners.size()-1);
+				String name = msg.substring(0,msg.length()-ROUTER_NAME.length());
+				String router = msg.substring(msg.length()-ROUTER_NAME.length(),msg.length());
+				if(!isConnected(name) && router.equals(ROUTER_NAME))
+				{
+					connected.add(name);
+					return true;
+				}
 			}
 		}
+		return false;
 	}
-	
-	public void disconnect(Listener l,byte[] disconnect)
+	//disconnect = verschlüsselt routername+name
+	private boolean disconnect(byte[] disconnect)
 	{
-		if(listeners.contains(l))
+		if(disconnect.length >3)
 		{
 			String msg = BAC.toString(wep.decryptIV(disconnect));
-			String name = msg.substring(0,msg.length()-ROUTER_NAME.length());
-			String router = msg.substring(msg.length()-ROUTER_NAME.length(),msg.length());
-			if(isConnected(name) && router.equals(ROUTER_NAME))
+			if(msg.length()>ROUTER_NAME.length())
 			{
-				listeners.remove(l);
-				ip_table.remove(name);
+				String router = msg.substring(0,ROUTER_NAME.length());
+				String name = msg.substring(ROUTER_NAME.length(),msg.length());
+				if(isConnected(name) && router.equals(ROUTER_NAME))
+				{
+					removeConnection(name);
+					return true;
+				}
 			}
 		}
+		return false;
 	}
 	
 	private boolean isConnected(String name)
 	{
-		for(String s : ip_table.keySet())
+		for(String s : connected)
 		{
 			if(s.equals(name))return true;
 		}
 		return false;
+	}
+	
+	private void removeConnection(String name)
+	{
+		String tmp = null;
+		for(String s : connected)
+		{
+			if(s.equals(name))tmp = s;
+		}
+		connected.remove(tmp);
 	}
 	
 	private boolean isConnected(byte[] name)

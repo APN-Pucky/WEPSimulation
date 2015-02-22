@@ -63,6 +63,7 @@ public class WEP
 	
 	public byte[] encryptIV(byte[] msg)
 	{
+		incIV();
 		byte[] crypt = encrypt(msg);
 		byte[] r = new byte[crypt.length+3];
 		System.arraycopy(iv, 0, r, 0, 3);
@@ -78,6 +79,7 @@ public class WEP
 	
 	public byte[] decryptIV(byte[] msg_iv)
 	{
+		if(msg_iv.length<4)return new byte[]{};
 		byte[] msg = new byte[msg_iv.length-3];
 		System.arraycopy(msg_iv, 0, iv, 0, 3);
 		System.arraycopy(msg_iv, 3, msg, 0, msg.length);

@@ -10,6 +10,8 @@ public class Router implements Listener
 	//SSID
 	public static String ROUTER_NAME = "ROUTER1";
 	public static String GET_CONNECTED_LIST = "GET_CONNECTED_LIST";
+	//SNAP_HEADER (802.11b standard first byte)
+	public static String SNAP_HEADER = BAC.toString(new byte[]{0x2A}); // = '*'
 	private static String PASSWORD = "daspasswort";
 	//public medium
 	private ArrayList<Listener> listeners = new ArrayList<Listener>();
@@ -31,7 +33,7 @@ public class Router implements Listener
 		connected.add(ROUTER_NAME);
 	}
 	
-	public void listen(byte[] msg, byte[] from, byte[] to)
+	public synchronized void listen(byte[] msg, byte[] from, byte[] to)
 	{
 		if(BAC.toString(wep.decryptIV(to)).equals(ROUTER_NAME))
 		{
@@ -49,12 +51,12 @@ public class Router implements Listener
 		}
 	}
 	
-	public void sendTo(final String msg,final byte[] from,final byte[] to)
+	public synchronized void sendTo(final String msg,final byte[] from,final byte[] to)
 	{
 		sendTo(BAC.toByteArray(msg),from,to);
 	}
 	
-	public void sendTo(final byte[] msg,final byte[] from,final byte[] to)
+	public synchronized void sendTo(final byte[] msg,final byte[] from,final byte[] to)
 	{
 		new Thread(new Runnable(){
 			public void run()
@@ -71,17 +73,17 @@ public class Router implements Listener
 		}).start();
 	}
 	
-	public void addListener(Listener l)
+	public synchronized void addListener(Listener l)
 	{
 		listeners.add(l);
 	}
 	
-	public void removeListener(Listener l)
+	public synchronized void removeListener(Listener l)
 	{
 		listeners.remove(l);
 	}
 	//connect = verschlüsselt name+routername
-	private boolean connect(byte[] connect)
+	private synchronized boolean connect(byte[] connect)
 	{
 		if(connect.length >3)
 		{
@@ -100,7 +102,7 @@ public class Router implements Listener
 		return false;
 	}
 	//disconnect = verschlüsselt routername+name
-	private boolean disconnect(byte[] disconnect)
+	private synchronized boolean disconnect(byte[] disconnect)
 	{
 		if(disconnect.length >3)
 		{
@@ -119,7 +121,7 @@ public class Router implements Listener
 		return false;
 	}
 	
-	private boolean isConnected(String name)
+	private synchronized boolean isConnected(String name)
 	{
 		for(String s : connected)
 		{
@@ -128,7 +130,7 @@ public class Router implements Listener
 		return false;
 	}
 	
-	private void removeConnection(String name)
+	private synchronized void removeConnection(String name)
 	{
 		String tmp = null;
 		for(String s : connected)
@@ -138,7 +140,7 @@ public class Router implements Listener
 		connected.remove(tmp);
 	}
 	
-	private boolean isConnected(byte[] name)
+	private synchronized boolean isConnected(byte[] name)
 	{
 		return isConnected(BAC.toString(name));
 	}

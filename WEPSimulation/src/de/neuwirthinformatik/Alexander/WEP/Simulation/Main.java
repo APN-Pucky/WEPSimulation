@@ -9,7 +9,8 @@ import de.neuwirthinformatik.Alexander.WEP.WEP;
  */
 public class Main 
 {
+	public static void main(String[] args)
+	{
+		new Simulation();
+	}
 }
-//h]?aE?X?W?
-//?/??3????O
-//KhI?w\"?l3

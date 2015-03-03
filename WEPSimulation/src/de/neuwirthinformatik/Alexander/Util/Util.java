@@ -52,4 +52,27 @@ public class Util
 			}
 		}
 	}
+	
+	public static boolean isZero(byte[] arr_b)
+	{
+		for(byte b: arr_b)
+		{
+			if(b != 0)return false;
+		}
+		return true;
+	}
+	
+	public static boolean isZero(int[] arr_i)
+	{
+		for(int i: arr_i)
+		{
+			if(i != 0)return false;
+		}
+		return true;
+	}
+	
+	public static void throwException(String e)
+	{
+		throw new RuntimeException(e);
+	}
 }

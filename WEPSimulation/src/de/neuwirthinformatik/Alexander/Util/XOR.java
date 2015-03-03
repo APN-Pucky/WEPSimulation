@@ -11,4 +11,14 @@ public class XOR
 		}
 		return c;
 	}
+	
+	public static int[] xor(int[] a, int[] b)
+	{
+		int[] c = new int[a.length];
+		for(int i =0;i < a.length;i++)
+		{
+			c[i] = (int) (a[i] ^ b[i]);
+		}
+		return c;
+	}
 }

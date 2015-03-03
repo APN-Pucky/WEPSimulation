@@ -3,23 +3,26 @@ package de.neuwirthinformatik.Alexander.Util;
 public class Log 
 {
 	public static int level = 0;
-	public static void print(String s)
+	
+	public synchronized static void print(String s)
 	{
 		s=s.replaceAll("\\\\","\\\\\\\\");
 		s=s.replaceAll("\n","\\\\n");
 		s=s.replaceAll("\t","\\\\t");
 		s=s.replaceAll("\b","\\\\b");
+		s=s.replaceAll("\r","\\\\r");
+		s=s.replaceAll("\f","\\\\f");
 		System.out.print(s);
 	}
 	
-	public static void println(String s)
+	public synchronized static void println(String s)
 	{
 		print(s);
 		System.out.println();
 		applyLevel();
 	}
 	
-	public static void applyLevel()
+	public synchronized static void applyLevel()
 	{
 		for(int i = 0; i < level;i++)
 		{
@@ -27,12 +30,12 @@ public class Log
 		}
 	}
 	
-	public static void incLevel()
+	public synchronized static void incLevel()
 	{
 		level++;
 	}
 	
-	public static void decLevel()
+	public synchronized static void decLevel()
 	{
 		level--;
 	}

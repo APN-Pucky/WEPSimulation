@@ -53,6 +53,8 @@ public class Attacker implements Listener
 				{
 					System.out.println("Cracked WEP!!!");
 				}
+				p_cur = 0; 
+				//aha;
 			}
 		}
 	}

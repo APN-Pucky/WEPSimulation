@@ -12,6 +12,11 @@ public class HexDump
 	{
 		dump(BAC.toByteArray(s));
 	}
+	
+	public synchronized static void dump(int[] i)
+	{
+		dump(Util.toSignedByteArray(i));
+	}
 
 	public synchronized static void dump(byte[] b)
 	{

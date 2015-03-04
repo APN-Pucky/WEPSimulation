@@ -23,6 +23,7 @@ public class Attacker implements Listener
 		int[] pm = Util.toUnsignedByteArray(msg);
 		if(pm[0]==a_byte+3 && pm[1]==255)
 		{
+			System.out.println("got good packet");
 			int first_byte = pm[3]^0xAA;
 			int[] seed = new int[8];
 			System.arraycopy(pm, 0, seed, 0, 3);

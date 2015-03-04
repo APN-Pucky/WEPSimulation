@@ -38,9 +38,9 @@ public class Computer extends AbstractSender implements Listener
 			byte[] to_dc = wep.decryptIV(to);
 			byte[] from_dc = wep.decryptIV(from);
 			
-			Log.incLevel();
+			//Log.incLevel();
 			Log.println(name + " received (from "+ BAC.toString(from_dc) +"):");
-			Log.incLevel();
+			/*Log.incLevel();
 			Log.println("raw:");
 			Log.println("");
 			HexDump.dump(msg);
@@ -52,6 +52,7 @@ public class Computer extends AbstractSender implements Listener
 			Log.decLevel();
 			Log.decLevel();
 			Log.println("");
+			*/
 			try
 			{
 				Thread.sleep(5000);

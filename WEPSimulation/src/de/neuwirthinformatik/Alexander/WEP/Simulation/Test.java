@@ -8,7 +8,7 @@ public class Test
 	{
 		//Router r = new Router();
 		//Computer c = new Computer(r,"Computer1");
-		System.out.println(Router.SNAP_HEADER);
+		//System.out.println(Router.SNAP_HEADER);
 		HexDump.dump(Router.SNAP_HEADER);
 		HexDump.dump(new byte[]{255-0x80});
 		//HexDump.dump(BAC.toByteArray(Router.SNAP_HEADER));

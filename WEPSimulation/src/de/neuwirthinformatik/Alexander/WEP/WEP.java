@@ -1,8 +1,7 @@
 package de.neuwirthinformatik.Alexander.WEP;
 
-import java.util.Random;
-
 import de.neuwirthinformatik.Alexander.Util.BAC;
+import de.neuwirthinformatik.Alexander.Util.HexDump;
 import de.neuwirthinformatik.Alexander.Util.Util;
 import de.neuwirthinformatik.Alexander.Util.XOR;
 
@@ -67,6 +66,8 @@ public class WEP
 		int[] crc = new int[crc32_size];
 		System.arraycopy(pm, 0, r,0,r.length);
 		System.arraycopy(pm, r.length, crc ,0,crc32_size);
+		HexDump.dump(crc);
+		HexDump.dump(CRC32.getCS(r));
 		if(!Util.isZero(XOR.xor(CRC32.getCS(r),crc)))Util.throwException("Msgs are not equal!");
 		return r;
 	}
@@ -113,19 +114,19 @@ public class WEP
 
 	public void incIV()
 	{
-		if (iv[0] == 0xFF)
+		if (iv[2] == 0xFF)
 		{
-			iv[0] = 0;
+			iv[2] = 0;
 			if (iv[1] == 0xFF)
 			{
 				iv[1] = 0;
-				if(iv[2] == 0xFF)
+				if(iv[0] == 0xFF)
 				{
-					iv[2] = 0;
+					iv[0] = 0;
 				}
 				else
 				{
-					iv[2]++;
+					iv[0]++;
 				}
 			}
 			else
@@ -135,7 +136,7 @@ public class WEP
 		}
 		else
 		{
-			iv[0]++;
+			iv[2]++;
 		}
 	}
 

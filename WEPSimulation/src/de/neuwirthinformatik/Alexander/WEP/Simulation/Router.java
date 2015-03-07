@@ -12,7 +12,7 @@ public class Router implements Listener
 	public static String GET_CONNECTED_LIST = "GET_CONNECTED_LIST";
 	//SNAP_HEADER (802.11b standard first byte)
 	public static String SNAP_HEADER = BAC.toString(new byte[]{0x2A}); // = '*'
-	private static String PASSWORD = "daspasswort";
+	private static String PASSWORD = "dxspasswort";
 	//public medium
 	private ArrayList<Listener> listeners = new ArrayList<Listener>();
 	private ArrayList<String> connected = new ArrayList<String>();
@@ -35,10 +35,10 @@ public class Router implements Listener
 	
 	public synchronized void listen(byte[] msg, byte[] from, byte[] to)
 	{
-		if(BAC.toString(wep.decryptIV(to)).equals(ROUTER_NAME))
+		if(BAC.toString(wep.decryptIV(to)).equals(SNAP_HEADER+ROUTER_NAME))
 		{
 			disconnect(msg);
-			if(BAC.toString(wep.decryptIV(msg)).equals(GET_CONNECTED_LIST))
+			if(BAC.toString(wep.decryptIV(msg)).equals(SNAP_HEADER+GET_CONNECTED_LIST))
 			{
 				String t="";
 				for(String s : connected)
@@ -46,7 +46,7 @@ public class Router implements Listener
 					t += s+" ";
 				}
 				//to and from swaped to answer
-				sendTo(wep.encryptIV(t),to,from);
+				sendTo(wep.encryptIV(SNAP_HEADER+t),to,from);
 			}
 		}
 	}
@@ -68,7 +68,9 @@ public class Router implements Listener
 						r.listen(msg.clone(),from,to);
 					}
 				}
-				else if(connect(msg));
+				else if(connect(msg))
+				{
+				}
 			}
 		}).start();
 	}
@@ -85,9 +87,10 @@ public class Router implements Listener
 	//connect = verschlüsselt name+routername
 	private synchronized boolean connect(byte[] connect)
 	{
-		if(connect.length >3)
+		if(connect.length >4)
 		{
 			String msg = BAC.toString(wep.decryptIV(connect));
+			msg = msg.substring(1, msg.length());
 			if(msg.length()>ROUTER_NAME.length())
 			{
 				String name = msg.substring(0,msg.length()-ROUTER_NAME.length());
@@ -104,9 +107,10 @@ public class Router implements Listener
 	//disconnect = verschlüsselt routername+name
 	private synchronized boolean disconnect(byte[] disconnect)
 	{
-		if(disconnect.length >3)
+		if(disconnect.length >4)
 		{
 			String msg = BAC.toString(wep.decryptIV(disconnect));
+			msg = msg.substring(1, msg.length());
 			if(msg.length()>ROUTER_NAME.length())
 			{
 				String router = msg.substring(0,ROUTER_NAME.length());
@@ -142,6 +146,8 @@ public class Router implements Listener
 	
 	private synchronized boolean isConnected(byte[] name)
 	{
-		return isConnected(BAC.toString(name));
+		String n = BAC.toString(name);
+		n=n.substring(1, n.length());
+		return isConnected(n);
 	}
 }

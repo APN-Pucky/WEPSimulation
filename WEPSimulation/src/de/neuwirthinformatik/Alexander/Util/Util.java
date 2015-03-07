@@ -62,6 +62,16 @@ public class Util
 		return true;
 	}
 	
+	public static boolean isEqual(int[] a, int [] b)
+	{
+		if(a.length != b.length)return false;
+		for(int i = 0; i < a.length; i++)
+		{
+			if(a[i]!=b[i])return false;
+		}
+		return true;
+	}
+	
 	public static boolean isZero(int[] arr_i)
 	{
 		for(int i: arr_i)
@@ -69,6 +79,24 @@ public class Util
 			if(i != 0)return false;
 		}
 		return true;
+	}
+	
+	public static boolean contains(int[] arr_i, int a)
+	{
+		for(int i : arr_i)
+		{
+			if(i==a)return true;
+		}
+		return false;
+	}
+	
+	public static int[] setNegative(int[] arr_i)
+	{
+		for(int i =0;i<arr_i.length;i++)
+		{
+			arr_i[i]=-1;
+		}
+		return arr_i;
 	}
 	
 	public static void throwException(String e)

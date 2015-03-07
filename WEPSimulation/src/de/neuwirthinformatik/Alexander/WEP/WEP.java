@@ -30,33 +30,33 @@ public class WEP
 		this(BAC.toByteArray(key));
 	}
 
-	public String encrypt(String msg)
+	public synchronized String encrypt(String msg)
 	{
 		return BAC.toString(encrypt(BAC.toByteArray(msg)));
 	}
 	
-	public int[] encrypt(int[] msg)
+	public synchronized int[] encrypt(int[] msg)
 	{
 		int[] pm = new int[msg.length+crc32_size];
 		System.arraycopy(iv, 0, seed, 0, iv_size);
 		System.arraycopy(key, 0, seed, iv_size, key_size);
 		System.arraycopy(msg, 0, pm, 0, msg.length);
-		System.arraycopy(CRC32.getCS(pm), 0, pm, msg.length, crc32_size);
+		System.arraycopy(CRC32.getCS(msg), 0, pm, msg.length, crc32_size);
 		int[] keystream = RC4.cipher(seed, pm.length);
 		return XOR.xor(pm, keystream);
 	}
 
-	public byte[] encrypt(byte[] msg)
+	public synchronized byte[] encrypt(byte[] msg)
 	{
 		return Util.toSignedByteArray(encrypt(Util.toUnsignedByteArray(msg)));
 	}
 
-	public String decrypt(String msg)
+	public synchronized String decrypt(String msg)
 	{
 		return BAC.toString(decrypt(BAC.toByteArray(msg)));
 	}
 	
-	public int[] decrypt(int[] msg)
+	public synchronized int[] decrypt(int[] msg)
 	{
 		System.arraycopy(iv, 0, seed, 0, iv_size);
 		System.arraycopy(key, 0, seed, iv_size, key_size);
@@ -66,24 +66,30 @@ public class WEP
 		int[] crc = new int[crc32_size];
 		System.arraycopy(pm, 0, r,0,r.length);
 		System.arraycopy(pm, r.length, crc ,0,crc32_size);
-		HexDump.dump(crc);
-		HexDump.dump(CRC32.getCS(r));
-		if(!Util.isZero(XOR.xor(CRC32.getCS(r),crc)))Util.throwException("Msgs are not equal!");
+		if(!Util.isZero(XOR.xor(CRC32.getCS(r),crc)))
+		{
+			HexDump.dump(msg);
+			HexDump.dump(pm);
+			HexDump.dump(r);
+			HexDump.dump(CRC32.getCS(r));
+			HexDump.dump(crc);
+			Util.throwException("Msgs are not equal!");
+		}
 		return r;
 	}
 
-	public byte[] decrypt(byte[] msg)
+	public synchronized byte[] decrypt(byte[] msg)
 	{
 		return Util.toSignedByteArray(decrypt(Util.toUnsignedByteArray(msg)));
 	}
 
 	// returns iv and crypt
-	public String encryptIV(String msg)
+	public synchronized String encryptIV(String msg)
 	{
 		return BAC.toString(encryptIV(BAC.toByteArray(msg)));
 	}
 
-	public byte[] encryptIV(byte[] msg)
+	public synchronized byte[] encryptIV(byte[] msg)
 	{
 		incIV();
 		byte[] crypt = encrypt(msg);
@@ -94,12 +100,12 @@ public class WEP
 	}
 
 	// reads and sets IV
-	public String decryptIV(String msg_iv)
+	public synchronized String decryptIV(String msg_iv)
 	{
 		return BAC.toString(decryptIV(BAC.toByteArray(msg_iv)));
 	}
 
-	public byte[] decryptIV(byte[] msg_iv)
+	public synchronized byte[] decryptIV(byte[] msg_iv)
 	{
 		if (msg_iv.length < 4)
 			return new byte[] {};
@@ -112,15 +118,15 @@ public class WEP
 		return r;
 	}
 
-	public void incIV()
+	public synchronized void incIV()
 	{
-		if (iv[2] == 0xFF)
+		if (iv[2] >= 0xFF)
 		{
 			iv[2] = 0;
-			if (iv[1] == 0xFF)
+			if (iv[1] >= 0xFF)
 			{
 				iv[1] = 0;
-				if(iv[0] == 0xFF)
+				if(iv[0] >= 0xFF)
 				{
 					iv[0] = 0;
 				}
@@ -140,17 +146,17 @@ public class WEP
 		}
 	}
 
-	public void setIV(byte[] iv)
+	public synchronized void setIV(byte[] iv)
 	{
 		this.iv = Util.toUnsignedByteArray(iv);
 	}
 
-	public byte[] getIV()
+	public synchronized byte[] getIV()
 	{
 		return Util.toSignedByteArray(iv);
 	}
 
-	public void randomIV()
+	public synchronized void randomIV()
 	{
 		int r = (int) (Math.random() * 256 * 256 * 256);
 		for (int i = 0; i < r; i++)

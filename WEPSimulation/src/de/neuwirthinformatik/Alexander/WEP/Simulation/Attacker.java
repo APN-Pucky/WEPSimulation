@@ -1,15 +1,16 @@
 package de.neuwirthinformatik.Alexander.WEP.Simulation;
 
 import de.neuwirthinformatik.Alexander.Util.Util;
-import de.neuwirthinformatik.Alexander.WEP.KSA;
 
 public class Attacker implements Listener
 {
 	private Router r;
-	int a_byte = 0;
+	int a_byte = 3;
 	//40-bit key
-	int[] key = new int[]{0,0,0,0,0};
-	int[] p_key = new int[100];
+	int[] key = new int[]{'d'+0x80,'x'+0x80,'s'+0x80,'p'+0x80,'a'+0x80};
+	int[] p_key = new int[250];
+	int[] used_iv_x = new int[250];
+	//filter X
 	int p_cur = 0;
 	
 	public Attacker(Router r)
@@ -20,10 +21,16 @@ public class Attacker implements Listener
 
 	public void listen(byte[] msg, byte[] from, byte[] to)
 	{
+		check(msg);
+		check(from);
+		check(to);
+	}
+	
+	public synchronized void check(byte[] msg)
+	{
 		int[] pm = Util.toUnsignedByteArray(msg);
-		if(pm[0]==a_byte+3 && pm[1]==255)
+		if(pm[0]==a_byte+3 && pm[1]==255 && !Util.contains(used_iv_x, pm[2]))
 		{
-			System.out.println("got good packet");
 			int first_byte = pm[3]^0xAA;
 			int[] seed = new int[8];
 			System.arraycopy(pm, 0, seed, 0, 3);
@@ -45,17 +52,22 @@ public class Attacker implements Listener
 			}
 			//--++-+-++--
 			if(j<2)return;
-			p_key[p_cur]=((first_byte-sbox[3]-j)%256+256)%256;
+			p_key[p_cur]=((first_byte-sbox[pm[0]]-j)%256+256)%256;
+			used_iv_x[p_cur] = pm[2];
+			//System.out.println("Guess: " + p_key[p_cur]);
+			//System.out.println("Guess: " + (char)p_key[p_cur]);
+			//System.out.println("Guess: " + (char)(p_key[p_cur]-0x80));
 			p_cur++;
-			if(p_cur == 100)
+			if(p_cur == p_key.length)
 			{
 				setKey();
 				if(a_byte==5)
 				{
 					System.out.println("Cracked WEP!!!");
 				}
-				p_cur = 0; 
-				//aha;
+				p_cur = 0;
+				p_key=Util.setNegative(p_key);
+				used_iv_x=Util.setNegative(used_iv_x);
 			}
 		}
 	}
@@ -90,6 +102,10 @@ public class Attacker implements Listener
 			i+=j-1;
 		}
 		key[a_byte] = p_key[max_i];
+		System.out.println("Got Byte: " + (p_key[max_i]));
+		System.out.println("Got Char: " + (char)(p_key[max_i]-0x80));
 		a_byte++;
+		//tmp
+		System.exit(0);
 	}
 }

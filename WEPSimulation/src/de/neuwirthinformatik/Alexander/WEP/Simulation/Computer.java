@@ -17,29 +17,28 @@ public class Computer extends AbstractSender implements Listener
 		this.r = r;
 		try
 		{
-			wep = new WEP("daspasswort");
+			wep = new WEP("dxspasswort");
 		} 
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		wep.randomIV();
+		//tmp
+		wep.setIV(new byte[]{3+3-0x80,0x7F,(byte) (0-0x80)});
 		r.addListener(this);
-		byte[] tb = BAC.toByteArray(wep.encryptIV(name));
-		byte[] rb = BAC.toByteArray(wep.encryptIV(Router.ROUTER_NAME));
 		send(this.name+Router.ROUTER_NAME,Router.ROUTER_NAME);
 	}
 
 	public void listen(byte[] msg, byte[] from, byte[] to)
 	{
-		if(BAC.toString(wep.decryptIV(to)).equals(name))
+		if(BAC.toString(wep.decryptIV(to)).equals(Router.SNAP_HEADER+name))
 		{
 			byte[] msg_dc = wep.decryptIV(msg);
 			byte[] to_dc = wep.decryptIV(to);
 			byte[] from_dc = wep.decryptIV(from);
-			
+			//if(Math.random()>0.99)wep.randomIV();
 			//Log.incLevel();
-			Log.println(name + " received (from "+ BAC.toString(from_dc) +"):");
+			//Log.println(name + " received (from "+ BAC.toString(from_dc) +"):");
 			/*Log.incLevel();
 			Log.println("raw:");
 			Log.println("");
@@ -55,8 +54,9 @@ public class Computer extends AbstractSender implements Listener
 			*/
 			try
 			{
-				Thread.sleep(5000);
-			} catch (InterruptedException e)
+				Thread.sleep(100);
+			}
+			catch (InterruptedException e)
 			{
 				e.printStackTrace();
 			}

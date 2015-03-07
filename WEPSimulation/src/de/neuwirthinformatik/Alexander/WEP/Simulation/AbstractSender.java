@@ -11,7 +11,6 @@ public abstract class AbstractSender implements Sender
 	
 	public void send(String msg,String to)
 	{
-		wep.randomIV();
-		r.sendTo(wep.encryptIV(Router.SNAP_HEADER+msg),BAC.toByteArray(wep.encryptIV(name)),BAC.toByteArray(wep.encryptIV(to)));
+		r.sendTo(wep.encryptIV(Router.SNAP_HEADER+msg),BAC.toByteArray(wep.encryptIV(Router.SNAP_HEADER+name)),BAC.toByteArray(wep.encryptIV(Router.SNAP_HEADER+to)));
 	}
 }

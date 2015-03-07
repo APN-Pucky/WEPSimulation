@@ -21,11 +21,12 @@ public class CRC32
 		}
 		//int -> 32-bits
 		crc = crc ^ 0xffffffff;
-		return new int[]{	
-				(crc&0xFF000000)>>(4*6),
-				(crc&0xFF0000)>>(4*4),
-				(crc&0xFF00)>>(4*2),
-				(crc&0xFF)
+		int[] r = new int[]{	
+				(crc>>(4*6))&0xFF,
+				(crc>>(4*4))&0xFF,
+				(crc>>(4*2))&0xFF,
+				((crc&0xFF))
 				};
+		return r;
 	}
 }

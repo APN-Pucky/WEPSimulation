@@ -12,6 +12,7 @@ public class Log
 		s=s.replaceAll("\b","\\\\b");
 		s=s.replaceAll("\r","\\\\r");
 		s=s.replaceAll("\f","\\\\f");
+		applyLevel();
 		System.out.print(s);
 	}
 	
@@ -19,7 +20,6 @@ public class Log
 	{
 		print(s);
 		System.out.println();
-		applyLevel();
 	}
 	
 	public synchronized static void applyLevel()

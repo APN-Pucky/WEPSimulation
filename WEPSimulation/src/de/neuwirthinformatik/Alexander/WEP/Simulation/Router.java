@@ -8,18 +8,20 @@ import de.neuwirthinformatik.Alexander.WEP.WEP;
 public class Router implements Listener
 {
 	//SSID
-	public static String ROUTER_NAME = "ROUTER1";
+	public String ROUTER_NAME = "ROUTER1";
 	public static String GET_CONNECTED_LIST = "GET_CONNECTED_LIST";
 	//SNAP_HEADER (802.11b standard first byte)
-	public static String SNAP_HEADER = BAC.toString(new byte[]{0x2A}); // = '*'
-	private static String PASSWORD = "dxspasswort";
+	public static String SNAP_HEADER = BAC.toString(new byte[]{0x2A}); // = '*' -> 0xAA
+	private String PASSWORD = "daspasswort";
 	//public medium
 	private ArrayList<Listener> listeners = new ArrayList<Listener>();
 	private ArrayList<String> connected = new ArrayList<String>();
 	private WEP wep = null;
 	
-	public Router()
+	public Router(String rn, String pw)
 	{
+		this.ROUTER_NAME = rn;
+		this.PASSWORD = pw;
 		try
 		{
 			wep = new WEP(PASSWORD);

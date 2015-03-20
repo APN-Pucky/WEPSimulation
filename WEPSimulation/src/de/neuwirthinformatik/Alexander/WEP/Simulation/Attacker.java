@@ -20,7 +20,9 @@ public class Attacker implements Listener
 	ArrayList<byte[]> p_good = new ArrayList<byte[]>();
 	// filter X
 	int p_cur = 0;
-
+	long packet_count = 0;
+	long start_time;
+	
 	public Attacker(Router r, int p_key_size)
 	{
 		this.r = r;
@@ -33,6 +35,7 @@ public class Attacker implements Listener
 		{
 			key[i] = -1;
 		}
+		start_time = System.nanoTime();
 		//Log
 		Log.println("Potential "+ a_byte+ ". Key Bytes: ");
 		Log.incLevel();
@@ -41,6 +44,7 @@ public class Attacker implements Listener
 
 	public void listen(byte[] msg, byte[] from, byte[] to)
 	{
+		packet_count+=3;
 		check(msg);
 		check(from);
 		check(to);
@@ -91,6 +95,11 @@ public class Attacker implements Listener
 				if (a_byte == key_size)
 				{
 					Log.decLevel();
+					double time = (System.nanoTime()-start_time)/60000000000D;
+					Log.println("After " + time + " minutes");
+					Log.println("And " + packet_count + " packets");
+					Log.println("------------------------------------");
+					Log.println("" + packet_count/time + " packets/minute");
 					Log.println("------------------------------------");
 					Log.print("Full WEP-Key: ");
 					Log.println("'"+BAC.toString(Util.toSignedByteArray(key))+ "'");
@@ -131,12 +140,10 @@ public class Attacker implements Listener
 		}
 		key[a_byte] = p_key[max_i];
 		//Log
-		Log.incLevel();
 		Log.println("");
 		Log.println("|");
 		Log.println("'-> Key-Byte: " + (char) (p_key[max_i] - 0x80));
 		Log.println("");
-		Log.decLevel();
 		Log.decLevel();
 		if((a_byte+1)<key_size)Log.println("Potential " + (a_byte+1) +". Key Bytes: ");
 		Log.incLevel();

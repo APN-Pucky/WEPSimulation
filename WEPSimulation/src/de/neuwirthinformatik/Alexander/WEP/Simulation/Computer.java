@@ -64,6 +64,7 @@ public class Computer extends AbstractSender implements Listener
 			{
 				e.printStackTrace();
 			}*/
+			if(random)wep.randomIV();
 			r.sendTo(wep.encryptIV(msg_dc),wep.encryptIV(to_dc),wep.encryptIV(from_dc));
 		}
 	}
